@@ -16,7 +16,7 @@ type TodoHandler struct {
 }
 
 func NewTodoHandler() *TodoHandler {
-	repo := &InMemoryTodoRepository{}
+	repo := NewMongoTodoRepository()
 	creator := &application_todo.TodoCreator{
 		Repo: repo,
 	}

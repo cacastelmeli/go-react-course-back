@@ -10,6 +10,10 @@ var todos = []*domain_todo.Todo{}
 type InMemoryTodoRepository struct {
 }
 
+func NewInMemoryTodoRepository() *InMemoryTodoRepository {
+	return &InMemoryTodoRepository{}
+}
+
 func (r *InMemoryTodoRepository) Add(todo *domain_todo.Todo) {
 	todos = append(todos, todo)
 }
