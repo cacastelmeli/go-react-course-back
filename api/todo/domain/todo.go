@@ -1,7 +1,12 @@
 package domain_todo
 
+// Value objects
+type TodoId float64
+type TodoText string
+type TodoDone bool
+
 type Todo struct {
-	Id   float64 `json:"id"`
-	Text string  `json:"text"`
-	Done bool    `json:"done"`
+	Id   TodoId   `json:"id"`
+	Text TodoText `json:"text"`
+	Done TodoDone `json:"done"`
 }

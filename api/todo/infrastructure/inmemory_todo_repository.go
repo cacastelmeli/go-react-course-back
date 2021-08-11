@@ -22,15 +22,12 @@ func (r *InMemoryTodoRepository) GetAll() []*domain_todo.Todo {
 	return todos
 }
 
-func (r *InMemoryTodoRepository) Remove(id float64) {
-	foundIndex := -1
+func (r *InMemoryTodoRepository) Remove(id domain_todo.TodoId) {
+	foundIndex := r.findIndex(id)
 	lastIndex := len(todos) - 1
 
-	for i, todo := range todos {
-		if todo.Id == id {
-			foundIndex = i
-			break
-		}
+	if foundIndex == -1 {
+		return
 	}
 
 	todos[foundIndex] = todos[lastIndex]
@@ -38,17 +35,30 @@ func (r *InMemoryTodoRepository) Remove(id float64) {
 }
 
 func (r *InMemoryTodoRepository) Update(todo *domain_todo.Todo) {
-	var foundTodo *domain_todo.Todo
-
-	for _, t := range todos {
-		if t.Id == todo.Id {
-			foundTodo = t
-			break
-		}
-	}
+	foundTodo := r.Find(todo.Id)
 
 	if foundTodo != nil {
 		foundTodo.Done = todo.Done
 		foundTodo.Text = todo.Text
 	}
+}
+
+func (r *InMemoryTodoRepository) Find(id domain_todo.TodoId) *domain_todo.Todo {
+	foundIndex := r.findIndex(id)
+
+	if foundIndex == -1 {
+		return nil
+	}
+
+	return todos[foundIndex]
+}
+
+func (r *InMemoryTodoRepository) findIndex(id domain_todo.TodoId) int {
+	for i, todo := range todos {
+		if todo.Id == id {
+			return i
+		}
+	}
+
+	return -1
 }

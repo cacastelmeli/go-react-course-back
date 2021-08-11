@@ -1,6 +1,7 @@
 package infrastructure_todo
 
 import (
+	"net/http"
 	"strconv"
 
 	application_todo "github.com/cacastelmeli/go-todo-back/api/todo/application"
@@ -17,21 +18,13 @@ type TodoHandler struct {
 
 func NewTodoHandler() *TodoHandler {
 	repo := NewMongoTodoRepository()
-	creator := &application_todo.TodoCreator{
-		Repo: repo,
-	}
-
+	creator := application_todo.NewTodoCreator(repo)
 	searcher := &application_todo.TodoSearcher{
 		Repo: repo,
 	}
 
-	remover := &application_todo.TodoRemover{
-		Repo: repo,
-	}
-
-	updater := &application_todo.TodoUpdater{
-		Repo: repo,
-	}
+	remover := application_todo.NewTodoRemover(repo)
+	updater := application_todo.NewTodoUpdater(repo)
 
 	return &TodoHandler{
 		creator:  creator,
@@ -49,7 +42,13 @@ func (t *TodoHandler) Add(c *fiber.Ctx) error {
 	todo := &domain_todo.Todo{}
 
 	c.BodyParser(todo)
-	t.creator.Create(todo)
+	err := t.creator.Create(todo)
+
+	if err != nil {
+		return c.
+			Status(http.StatusBadRequest).
+			JSON(fiber.Map{"error": err.Error()})
+	}
 
 	return c.JSON(fiber.Map{"success": true})
 }
@@ -58,7 +57,13 @@ func (t *TodoHandler) Update(c *fiber.Ctx) error {
 	todo := &domain_todo.Todo{}
 
 	c.BodyParser(todo)
-	t.updater.Update(todo)
+	err := t.updater.Update(todo)
+
+	if err != nil {
+		return c.
+			Status(http.StatusBadRequest).
+			JSON(fiber.Map{"error": err.Error()})
+	}
 
 	return c.JSON(fiber.Map{"success": true})
 }
@@ -68,10 +73,20 @@ func (t *TodoHandler) Remove(c *fiber.Ctx) error {
 	iId, err := strconv.ParseFloat(id, 64)
 
 	if err != nil {
-		return err
+		return c.
+			Status(http.StatusBadRequest).
+			JSON(fiber.Map{"error": err.Error()})
 	}
 
-	t.remover.Remove(iId)
+	err = t.remover.Remove(domain_todo.TodoId(iId))
 
-	return c.JSON(fiber.Map{"success": true})
+	if err != nil {
+		return c.
+			Status(http.StatusBadRequest).
+			JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.
+		Status(http.StatusOK).
+		JSON(fiber.Map{"success": true})
 }

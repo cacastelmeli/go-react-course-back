@@ -55,7 +55,7 @@ func (m *MongoTodoRepository) GetAll() []*domain_todo.Todo {
 	return allTodos
 }
 
-func (m *MongoTodoRepository) Remove(id float64) {
+func (m *MongoTodoRepository) Remove(id domain_todo.TodoId) {
 	_, err := m.collection.DeleteOne(context.TODO(), bson.D{{"id", id}})
 
 	if err != nil {
@@ -80,4 +80,17 @@ func (m *MongoTodoRepository) Update(todo *domain_todo.Todo) {
 	if err != nil {
 		log.Println("Error while updating todo", err)
 	}
+}
+
+func (m *MongoTodoRepository) Find(id domain_todo.TodoId) *domain_todo.Todo {
+	filter := bson.D{{"id", id}}
+	todo := &domain_todo.Todo{}
+
+	err := m.collection.FindOne(context.TODO(), filter).Decode(todo)
+
+	if err != nil {
+		return nil
+	}
+
+	return todo
 }
