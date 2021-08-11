@@ -9,21 +9,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var fakeTodos = []*domain_todo.Todo{
-	{
-		Id:   1,
-		Text: "Test 1",
+var inMemoryRepoSearch = insfrastructure_todo.NewInMemoryTodoRepository(
+	[]*domain_todo.Todo{
+		{
+			Id:   1,
+			Text: "Test 1",
+		},
+		{
+			Id:   2,
+			Text: "Test 2",
+			Done: true,
+		},
 	},
-	{
-		Id:   2,
-		Text: "Test 2",
-		Done: true,
-	},
-}
-
-var inMemoryRepoSearch = insfrastructure_todo.NewInMemoryTodoRepository(fakeTodos)
+)
 var todoSearcher = application_todo.NewTodoSearcher(inMemoryRepoSearch)
 
 func TestTodoSearcher_Search(t *testing.T) {
-	assert.ElementsMatch(t, fakeTodos[:], todoSearcher.GetAll())
+	// Assert all elements
+	assert.ElementsMatch(t, inMemoryRepoSearch.Todos[:], todoSearcher.GetAll())
 }
