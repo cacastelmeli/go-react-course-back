@@ -26,7 +26,7 @@ func TestTodoRepository(t *testing.T) {
 
 	// Assert todos inserted
 	assert.ElementsMatch(t, getTodosFromCollection(), []*domain_todo.Todo{insertedTodo})
-	// assert.ElementsMatch(t, []*domain_todo.Todo{insertedTodo}, mongoTodoRepository.GetAll())
+	assert.ElementsMatch(t, []*domain_todo.Todo{insertedTodo}, mongoTodoRepository.GetAll())
 
 	updatedTodo := &domain_todo.Todo{
 		Id:   1.234,
