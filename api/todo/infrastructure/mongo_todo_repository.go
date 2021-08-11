@@ -10,15 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+var MongoTodoCollection = infrastructure_shared.MongoDatabase.Collection("todo")
+
 type MongoTodoRepository struct {
 	collection *mongo.Collection
 }
 
 func NewMongoTodoRepository() *MongoTodoRepository {
-	collection := infrastructure_shared.MongoDatabase.Collection("todo")
-
 	return &MongoTodoRepository{
-		collection,
+		collection: MongoTodoCollection,
 	}
 }
 
@@ -75,7 +75,7 @@ func (m *MongoTodoRepository) Update(todo *domain_todo.Todo) {
 		},
 	}
 
-	_, err := m.collection.UpdateOne(context.TODO(), filter, update)
+	_, err := m.collection.UpdateOne(context.Background(), filter, update)
 
 	if err != nil {
 		log.Println("Error while updating todo", err)
