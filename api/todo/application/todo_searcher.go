@@ -6,6 +6,12 @@ type TodoSearcher struct {
 	Repo domain_todo.TodoRepository
 }
 
+func NewTodoSearcher(repo domain_todo.TodoRepository) *TodoSearcher {
+	return &TodoSearcher{
+		Repo: repo,
+	}
+}
+
 func (t *TodoSearcher) GetAll() []*domain_todo.Todo {
 	return t.Repo.GetAll()
 }

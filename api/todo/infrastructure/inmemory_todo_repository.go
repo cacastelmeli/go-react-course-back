@@ -4,34 +4,35 @@ import (
 	domain_todo "github.com/cacastelmeli/go-todo-back/api/todo/domain"
 )
 
-// Globally managed todos
-var todos = []*domain_todo.Todo{}
-
 type InMemoryTodoRepository struct {
+	// Expose todos for tests
+	Todos []*domain_todo.Todo
 }
 
-func NewInMemoryTodoRepository() *InMemoryTodoRepository {
-	return &InMemoryTodoRepository{}
+func NewInMemoryTodoRepository(todos []*domain_todo.Todo) *InMemoryTodoRepository {
+	return &InMemoryTodoRepository{
+		Todos: todos,
+	}
 }
 
 func (r *InMemoryTodoRepository) Add(todo *domain_todo.Todo) {
-	todos = append(todos, todo)
+	r.Todos = append(r.Todos, todo)
 }
 
 func (r *InMemoryTodoRepository) GetAll() []*domain_todo.Todo {
-	return todos
+	return r.Todos
 }
 
 func (r *InMemoryTodoRepository) Remove(id domain_todo.TodoId) {
 	foundIndex := r.findIndex(id)
-	lastIndex := len(todos) - 1
+	lastIndex := len(r.Todos) - 1
 
 	if foundIndex == -1 {
 		return
 	}
 
-	todos[foundIndex] = todos[lastIndex]
-	todos = todos[:lastIndex]
+	r.Todos[foundIndex] = r.Todos[lastIndex]
+	r.Todos = r.Todos[:lastIndex]
 }
 
 func (r *InMemoryTodoRepository) Update(todo *domain_todo.Todo) {
@@ -50,11 +51,11 @@ func (r *InMemoryTodoRepository) Find(id domain_todo.TodoId) *domain_todo.Todo {
 		return nil
 	}
 
-	return todos[foundIndex]
+	return r.Todos[foundIndex]
 }
 
 func (r *InMemoryTodoRepository) findIndex(id domain_todo.TodoId) int {
-	for i, todo := range todos {
+	for i, todo := range r.Todos {
 		if todo.Id == id {
 			return i
 		}
