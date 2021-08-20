@@ -2,12 +2,15 @@ package infrastructure_todo
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 
 	application_todo "github.com/cacastelmeli/go-todo-back/api/todo/application"
 	domain_todo "github.com/cacastelmeli/go-todo-back/api/todo/domain"
 	"github.com/gofiber/fiber/v2"
 )
+
+var mockMode = os.Getenv("MOCK") == "true"
 
 type TodoHandler struct {
 	creator  *application_todo.TodoCreator
@@ -17,12 +20,16 @@ type TodoHandler struct {
 }
 
 func NewTodoHandler() *TodoHandler {
-	repo := NewMongoTodoRepository()
-	creator := application_todo.NewTodoCreator(repo)
-	searcher := &application_todo.TodoSearcher{
-		Repo: repo,
+	var repo domain_todo.TodoRepository
+
+	if mockMode {
+		repo = NewInMemoryTodoRepository([]*domain_todo.Todo{})
+	} else {
+		repo = NewMongoTodoRepository()
 	}
 
+	creator := application_todo.NewTodoCreator(repo)
+	searcher := application_todo.NewTodoSearcher(repo)
 	remover := application_todo.NewTodoRemover(repo)
 	updater := application_todo.NewTodoUpdater(repo)
 
